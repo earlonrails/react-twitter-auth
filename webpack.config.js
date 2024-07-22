@@ -1,49 +1,42 @@
-'use strict';
+const path = require('path');
 
-var webpack = require('webpack');
-
-var env = process.env.NODE_ENV;
-
-var reactExternal = {
-  root: 'React',
-  commonjs2: 'react',
-  commonjs: 'react',
-  amd: 'react'
+module.exports = {
+    entry: './src/index.js',
+    mode: 'production',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'react-twitter-auth-component.js',
+        library: {
+            name: "react-twitter-login",
+            type: "umd"
+        },
+    },
+    module: {
+        rules: [
+            {
+                test: /\.(js|jsx)$/,
+                exclude: /node_modules/,
+                use: {
+                  loader: 'babel-loader',
+                  options: {
+                    presets: [
+                      ['@babel/preset-env', { targets: "defaults" }]
+                    ]
+                  }
+                }
+            },
+            {
+                test: /\.css$/i,
+                use: ["style-loader", "css-loader"],
+            },
+            {
+                test: /\.(png|svg|jpg|jpeg|gif)$/i,
+                // Convert images to inline base64
+                type: 'asset/inline'
+            },
+        ],
+    },
+    externals: {
+        react: 'react'
+    },
 };
-
-var config = {
-  externals: {
-    'react': reactExternal
-  },
-  module: {
-    loaders: [
-      { test: /\.js$/, loaders: ['babel-loader'], exclude: /node_modules/ }
-    ]
-  },
-  output: {
-    library: 'react-twitter-login',
-    libraryTarget: 'umd'
-  },
-  plugins: [
-    new webpack.optimize.OccurrenceOrderPlugin(),
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(env)
-    })
-  ]
-};
-
-if (env === 'production') {
-  config.plugins.push(
-    new webpack.optimize.UglifyJsPlugin({
-      compressor: {
-        pure_getters: true,
-        unsafe: true,
-        unsafe_comps: true,
-        screw_ie8: true,
-        warnings: false
-      }
-    })
-  )
-}
-
-module.exports = config;
